@@ -11,6 +11,7 @@ type Query {
   }
 type Mutation {
     createTodo(id: Int, title: String!, description: String!): [Todo]
+    deleteTodo(id: Int!): [Todo]
 }
 type Todo {
     id: ID!
@@ -29,20 +30,23 @@ var addTodo = function ({ title, description }) {
     todoArr.push(chatObj)
     return todoArr
 }
+var deleteTodo = function (args) {
+    todoArr.splice(args.id, 1)
+    return todoArr
+}
 
 
 var getTodos = function () {
     // if (args.title)
     //     return todoArr.filter(obj => obj.title === args.title)
     // else
-        return todoArr;
+    return todoArr;
 }
 
 var root = {
     createTodo: addTodo,
-    // course: getCourse,
     todos: getTodos,
-    // updateCourseTopic: updateCourseTopic
+    deleteTodo: deleteTodo
 };
 
 
