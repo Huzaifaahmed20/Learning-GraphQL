@@ -42,3 +42,9 @@
     color: black;
     margin-top: 20px;
 }
+
+.buttonsDiv{
+    display: flex;
+    flex-direction: row;
+    justify-content: center
+}

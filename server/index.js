@@ -3,6 +3,10 @@ var express_graphql = require('express-graphql');
 var { buildSchema } = require('graphql');
 var app = express();
 
+// TODO implement ES6 on GQL
+// TODO Connect MongoDB
+// TODO improve structure of code and directory
+
 var schema = buildSchema(`
 type Query {
     title: String
@@ -11,6 +15,7 @@ type Query {
   }
 type Mutation {
     createTodo(id: Int, title: String!, description: String!): [Todo]
+    updateTodo(id: Int!, title: String, description: String): [Todo]
     deleteTodo(id: Int!): [Todo]
 }
 type Todo {
@@ -21,7 +26,6 @@ type Todo {
 `);
 var todoArr = []
 var addTodo = function ({ title, description }) {
-    console.log('in func')
     var chatObj = {
         id: todoArr.length,
         title: title,
@@ -30,8 +34,31 @@ var addTodo = function ({ title, description }) {
     todoArr.push(chatObj)
     return todoArr
 }
+
 var deleteTodo = function (args) {
     todoArr.splice(args.id, 1)
+    return todoArr
+}
+
+var updateTodo = function (args) {
+    console.log(args)
+    todoArr.map((val, ind) => {
+        if (args.id === ind) {
+
+            if (args.title && args.description) {
+                val.title = args.title
+                val.description = args.description
+            }
+            else if (args.description)
+                return val.description = args.description
+
+            else if (args.title)
+                val.title = args.title
+
+            else
+                return val
+        }
+    })
     return todoArr
 }
 
@@ -46,7 +73,8 @@ var getTodos = function () {
 var root = {
     createTodo: addTodo,
     todos: getTodos,
-    deleteTodo: deleteTodo
+    deleteTodo: deleteTodo,
+    updateTodo: updateTodo
 };
 
 

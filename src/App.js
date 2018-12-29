@@ -32,10 +32,21 @@ mutation deleteTodo($id:Int!) {
 }
 `
 
+const UPDATE_TODO = `
+mutation updateTodo($id: Int!, $title: String, $description: String) {
+  updateTodo(id: $id, title: $title, description: $description) {
+    id
+    title
+    description
+  }
+}
+`
+
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      id: null,
       title: '',
       description: '',
       changeAddBtn: false,
@@ -95,17 +106,37 @@ class App extends Component {
     })
   }
   editTodo(val, ev) {
+    const { id, title, description } = val
     this.setState({
       changeAddBtn: true,
-      title: val.title,
-      description: val.description
+      id,
+      title,
+      description
     })
+
   }
   cancelHandler() {
     this.setState({
       changeAddBtn: false,
+      id: null,
       title: '',
       description: ''
+    })
+  }
+  updateTodo() {
+    const { id, title, description } = this.state
+
+    axios.post('http://localhost:4000/graphql', {
+      query: UPDATE_TODO,
+      headers: {
+        'Content-Type': 'application/graphql'
+      },
+      variables: { id: Number(id), title: title, description: description }
+    }).then(res => {
+      var todos = res.data.data.updateTodo
+      this.setState({ todos, changeAddBtn: false, title: '', description: '', })
+    }).catch(err => {
+      console.log('ERROR-------> ', err)
     })
   }
   render() {
@@ -120,7 +151,7 @@ class App extends Component {
           {
             !changeAddBtn ? <button className='addTodo' onClick={this.addTodo.bind(this)}>Add</button> :
               <div>
-                <button className='addTodo' onClick={this.addTodo.bind(this)}>Update</button>
+                <button className='addTodo' onClick={this.updateTodo.bind(this)}>Update</button>
                 <button className='addTodo' onClick={this.cancelHandler.bind(this)}>Cancel</button>
               </div>
           }
@@ -131,8 +162,10 @@ class App extends Component {
                 <div className='card' key={ind}>
                   <h2>{val.title}</h2>
                   <p>{val.description}</p>
-                  <button onClick={this.editTodo.bind(this, val)}>Edit</button>
-                  <button onClick={this.deleteTodo.bind(this, ind)}>Delete</button>
+                  <div className='buttonsDiv'>
+                    <button onClick={this.editTodo.bind(this, val)}>Edit</button>
+                    <button onClick={this.deleteTodo.bind(this, ind)}>Delete</button>
+                  </div>
                 </div>
               )
             }) : <h3>No Todos Created</h3>
